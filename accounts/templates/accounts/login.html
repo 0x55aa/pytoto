@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}登录{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}" /> 
+{% endblock %}
+
+{% block content %}
+<div class="nl-frame-container">
+    <div id="form-area" class="ng-form-area show-place">
+    <form id="miniLogin" action="" method="post">{% csrf_token %} 
+      <div style="z-index:30;" id="shake_area" class="shake-area">
+      {% for field in form %}
+        <div class="enter-area">
+          {{ field }}
+        </div>
+      {% endfor %}
+      <input type="hidden" name="next" value="{{ request.GET.next }}" />
+      </div>
+      <input type="submit" value="立即登录" class="button orange">
+      <span id="custom_display_128">
+        <a target="_blank" class="button" href="{% url 'register' %}">注册帐户</a>
+      </span>
+    </form>
+  </div>
+    </div>
+
+{% endblock %}

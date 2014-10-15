@@ -1,0 +1,100 @@
+{% load static %}
+{% load get_forums %}
+{% load get_essence_topic %}
+    <div id="sd" class="sd xm_sd"> 
+     {% if forum or topic %}
+     <div class="bm xm_bm post_new"> 
+      <div class="bm_c"> 
+        <a class="post_btn" href="{% if forum %}{% url 'topic_create' forum.get_slug %}{% elif topic %}{% url 'topic_create' topic.forum.get_slug %}{% endif %}"> <img src="{% static 'image/pn_post_big.png' %}" alt="发新帖" /> </a> 
+      </div> 
+     </div> 
+     {% endif %}
+     <div class="bm xm_bm xm_bm_hot">
+      <div class="bm_h"> 
+       <h2>板块推荐</h2> 
+      </div> 
+      <div class="bm_c" id="contentTab"> 
+       <ul> 
+        {% get_forums as forums %}
+        {% for f in forums %}
+        <li><a href="{{ f.get_absolute_url }}" target="_blank">{{ f.name }}</a></li> 
+        {% endfor %}
+        {% if not forums|length|divisibleby:2 %}
+        <li><a href="#" target="_blank"></a></li> 
+        {% endif %}
+        <li class="more"><a href="{% url 'forum_index' %}">查看全部论坛版块&gt;&gt;</a></li> 
+       </ul> 
+      </div> 
+     </div> 
+     {% comment %}
+     <div class="bm xm_bm xm_bm_top"> 
+      <div class="bm_h"> 
+       <h2>精彩推荐</h2> 
+       <a href="{% url 'home' %}" target="_blank">更多&gt;</a> 
+       <a href="{% url 'home' %}" target="_blank">更多&gt;</a> 
+      </div> 
+      <div class="bm_c"> 
+       <ul> 
+        <li>
+         <a href="#" target="_blank"><img src="1_files/20140620061411508.png" /></a>
+         <a href="#" target="_blank"><div align="center">爆米花济南站直播</div></a>
+         <span>爆米花2014第八站来啦！终于又来到美丽的大明湖畔啦！小伙伴们狂欢雀跃起来吧！与米粉朋友再次相聚，体验不一样的爆米花。 </span>
+        </li> 
+        <li>
+         <a href="#" target="_blank"><img src="1_files/20140620055323128.jpg" /></a>
+         <a href="#" target="_blank"><div align="center">网10点秒杀预告</div> </a>
+         <span>周末来临，本月第4周10点秒杀预告放出，米兔抱枕、米兔3D系列后盖、小奶牛手机支架等你带回家，一起来看看吧。 </span>
+        </li> 
+       </ul> 
+      </div> 
+     </div> 
+     {% endcomment %}
+    {% get_essence_topic as topic_essence %}
+     <div class="bm xm_bm xm_bm_news"> 
+      <div class="bm_h"> 
+       <h2>精彩推荐</h2> 
+       <a href="{% url 'home' %}" target="_blank">更多&gt;</a> 
+      </div> 
+      <div class="bm_c"> 
+       <ul> 
+       {% for t in topic_essence %}
+        {% if t.essence %}
+        <li class="topnews"><a href="{{ t.get_absolute_url }}" target="_blank">{{ t.subject }}</a></li> 
+        {% else %}
+        <li><a href="{{ t.get_absolute_url }}" target="_blank">{{ t.subject }}</a></li> 
+        {% endif %}
+       {% endfor %}
+       </ul> 
+      </div> 
+     </div> 
+     {% comment %}
+     <div class="bm xm_bm xm_bm_rom"> 
+      <div class="bm_h"> 
+       <h2>手机ROM</h2> 
+       <a href="#" target="_blank">更多&gt;</a> 
+      </div> 
+      <div class="bm_c"> 
+       <div class="download"> 
+        <strong>95.49<span>%</span></strong> 
+        <h2>本周推荐度</h2> 
+        <em>MIUI 4.6.13</em> 
+        <a href="#" target="_blank">ROM下载</a> 
+       </div> 
+       <div class="info"> 
+        <a href="#" target="_blank">关于开发版和稳定版的说明</a> 
+        <br /> 
+        <a href="#" target="_blank">一键升级工具</a> | 
+        <a href="#" target="_blank">线刷工具</a> | 
+        <a href="#" target="_blank">全部ROM</a> 
+       </div>
+      </div> 
+     </div> 
+     {% endcomment %}
+
+     <div class="drag"> 
+      <!--[diy=diy2]-->
+      <div id="diy2" class="area"></div>
+      <!--[/diy]--> 
+     </div> 
+    </div> 
+

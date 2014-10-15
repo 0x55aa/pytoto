@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+{% load get_text %}
+
+{% block title %}首页{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}" /> 
+{% endblock %}
+{% block js %}
+<script>
+$(function(){ 
+  $(".xm_nav [href='{% url 'home' %}']").parents("li").addClass('a');
+}); 
+</script>
+{% endblock %}
+
+
+{% block content %}
+<div class="mn xm_mn">
+  <div class="left box">
+    <ul id="news" class="news">
+    {% for topic in topics %}
+      <li>
+        <h2><a href="{{ topic.get_absolute_url }}" target="_blank">{{ topic.subject }}</a></h2>
+          <span>
+              <em class="views">{{ topic.view_count }}</em><a href="{{ topic.get_absolute_url }}" class="replies" target="_blank">{{ topic.reply_count }}</a>
+            <a href="{{ topic.get_absolute_url }}" title="分享到新浪微博" target="_blank" class="share">分享</a></span>
+            <a href="{{ topic.forum.get_absolute_url }}" target="_blank">{{ topic.forum.name }}</a>  |  2014年07月02日 
+            <a href="{{ topic.get_absolute_url }}" target="_blank"><img src="{% static 'image/default_index.jpg' %}" alt="{{ topic.subject }}" title="{{ topic.subject }}" height="220" width="605"></a>
+            <p>{{ topic.get_topic_first_post.content|get_text }}...<a href="{{ topic.get_absolute_url }}" target="_blank">全文》</a></p>
+        </li>
+    {% empty %}
+    还没有首页帖子
+    {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}
+
+{% block side %}
+  {% include "side.html" %}
+{% endblock %}
+
+

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}注册{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/register.css' %}" /> 
+{% endblock %}
+
+{% block content %}
+
+<div class="suc_content reg-account nojsp">
+  <div class="suc_kuang">
+    <div class="hei_513">
+      <h4 class="h4_suc">注册帐号</h4>
+      <p class="suc_p">如果您已拥有帐号，则可
+        <a href="{% url 'login' %}" class="cor_yellow">在此登录</a>
+      </p>
+      <div class="radio_quyu">
+      </div>
+      <form method="post" action="" id="regByEmail">{% csrf_token %}
+        <dl class="login-dl clearfix">
+          {% for field in form %}
+          <dt class="dt_l">{{ field.label }}：</dt>
+          <dd class="dd_r clearfix" id="emailInner">
+            {{ field }}
+            {% if field.errors %}
+              <span class="check_tips error_tip">
+              {% for error in field.errors %}
+              {{ error }}
+              {% endfor %}
+              </span>
+            {% endif %}
+          </dd>
+          {% endfor %}
+          <dt class="dt_l">&nbsp;</dt>
+          <dd class="dd_r la_height clearfix">
+            <div class="sub_login flt_l"><input class="no_bg" value="立即注册" type="submit"></div>
+          </dd>
+        </dl>
+      </form><!-- email end -->
+
+      <p class="p_cor_hui">点击“立即注册”，即表示您同意并愿意遵守用户协议和<a href="#" class="cor_yellow" target="_blank">隐私政策</a></p>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

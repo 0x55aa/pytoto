@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load static %}
+{% load get_new_user %}
+{% load get_total %}
+{#% load humanize %#}
+
+{% block title %}列表{% endblock %}
+{% block js %}
+<script>
+ $(function(){ 
+     $(".xm_nav [href='{% url 'forum_index' %}']").parents("li").addClass('a');
+ });
+</script>
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="xm_tp"> 
+     <div id="chart"> 
+      <div class="y">
+        欢迎新会员: 
+        {% get_new_user as new_user %}
+        <em><a href="#" target="_blank" class="xi2">{{ new_user.username }}</a></em> 
+      </div> 
+      <div class="chart"> 
+        {% get_total as total %}
+       <ul> 
+        <li>今日发帖数<em>{{ total.today_total_post }}</em></li> 
+        <li>总主题数<em>{{ total.total_topic }}</em></li> 
+        <li>总帖数<em>{{ total.total_post }}</em></li> 
+        <li>会员总数<em>{{ total.total_user }}</em></li> 
+       </ul> 
+      </div> 
+     </div> 
+    </div> {# end xm_tp #}
+
+    <div id="diy_chart" class="area"></div> 
+    <div class="mn xm_mn"> 
+     <div class="fl bm xm_bm"> 
+ 
+      {% for category in category_list %}
+      <div class="bm xm_bm xm_gd  flg cl"> 
+       <div class="bm_h cl"> 
+        <span class="o"> <img id="category_1_img" src="{% static 'image/collapsed_no.gif'%}" title="收起/展开" alt="收起/展开" /> </span> 
+        <h2> <a href="{{ category.get_absolute_url }}" style="">{{ category.name }}</a> </h2> 
+       </div> 
+       <div id="category_1" class="bm_c" style=""> 
+        <table class="fl_tb" cellpadding="0" cellspacing="0"> 
+         <tbody> 
+         {% for forum in category.category_forum.all %}
+          {% if not forloop.counter|divisibleby:2 %}
+          <tr> 
+           <td class="fl_g" width="32.9%"> 
+            <div class="fl_g_inner"> 
+             <div class="fl_icn_g" style="width: 58px;"> 
+                 <a href="#"><img src="{% static 'image/forum_logo.png' %}" alt="" align="left" /></a> 
+             </div> 
+             <dl style="margin-left: 58px;"> 
+              <dt> 
+              <a href="{{ forum.get_absolute_url }}">{{ forum.name }}</a> 
+                <em class="xw0 xi1" title="今日"> ({{ forum.today_post_count }})</em> 
+              </dt> 
+              <dd style="width: 240px; overflow: hidden; white-space: nowrap;">
+              {{ forum.description }}
+              </dd> 
+              <dd class="xg1"> 
+              <em>主题: {{ forum.topic_count }}</em>, 
+              <em>帖数: <span>{{ forum.post_count }}</span></em> 
+              </dd> 
+             </dl> 
+            </div>
+           </td> 
+          {% else %}
+           <td class="fl_g" width="32.9%"> 
+            <div class="fl_g_inner"> 
+             <div class="fl_icn_g" style="width: 58px;"> 
+              <a href="#"><img src="{% static 'image/forum_logo.png' %}" alt="" align="left" /></a> 
+             </div> 
+             <dl style="margin-left: 58px;"> 
+              <dt> 
+              <a href="{{ forum.get_absolute_url }}">{{ forum.name }}</a> 
+               <em class="xw0 xi1" title="今日"> ({{ forum.today_post_count }})</em> 
+              </dt> 
+              <dd style="width: 240px; overflow: hidden; white-space: nowrap;">
+              {{ forum.description }}
+              </dd> 
+              <dd class="xg1"> 
+               <em>主题: {{ forum.topic_count }}</em>, 
+               <em>帖数: <span>{{ forum.post_count }}</span></em> 
+              </dd> 
+             </dl> 
+            </div>
+           </td> 
+          </tr> 
+          {% endif %}
+          {% if not forloop.counter|divisibleby:2 and forloop.last %}
+          </tr> 
+          {% endif %}
+         {% empty %}
+          还没创建板块
+         {% endfor %}
+
+         </tbody>
+        </table> 
+       </div> 
+      </div>
+      {% empty %}
+      还没创建板块
+      {% endfor %}
+     </div> 
+     <div class="wp mtn"> 
+      <div id="diy3" class="area"></div>
+     </div> 
+    </div> 
+
+{% endblock %}
+
+
+{% block side %}
+  {% include "side.html" %}
+{% endblock %}
+

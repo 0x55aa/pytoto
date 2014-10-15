@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}提示{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/register.css' %}" /> 
+{% endblock %}
+
+{% block content %}
+<div class="suc_content">
+    <div class="suc_kuang">
+
+      <div class="hei_444 teln_m">
+        <div class="title">还差一步，请激活您的帐号</div>
+        <div class="register">
+          <div class="point_email">
+          <p>系统已经发送了一封激活邮件到您的邮箱</p><p>请访问您的邮箱：<b>com</b>，点击邮件中的链接便可激活您的帐号</p>
+          </div>
+          <div class="other">
+          <p>&nbsp;&nbsp;如果没有收到激活邮件：</p><p>• 也许邮件被您的邮箱误认为是垃圾邮件而放到垃圾箱中，请检查一下</p><p>• 或者，您可以<a id="sendMsg" class="action" href="javascript:void(0)">点此重新发送激活邮件</a></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+</div>
+
+{% endblock %}
+

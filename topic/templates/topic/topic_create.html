@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}发表主题{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/new.css' %}" /> 
+
+<link rel="stylesheet" type="text/css" href="{% static 'simditor/css/font-awesome.css' %}" /> 
+<link rel="stylesheet" type="text/css" href="{% static 'simditor/css/simditor.css' %}" /> 
+<style type="text/css">
+select:focus {
+    border-color: #66afe9;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(102, 175, 233, 0.6);
+    outline: 0 none;
+}
+select{
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+    color: #555;
+    font-size: 14px;
+    height: 30px;
+    line-height: 1.4285;
+    padding: 3px 12px;
+    margin: 3px;
+    transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+    width: 16%;
+}
+.input_text:focus {
+    border-color: #66afe9;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(102, 175, 233, 0.6);
+    outline: 0 none;
+}
+.input_text{
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+    color: #555;
+    font-size: 14px;
+    height: 18px;
+    line-height: 1.42857;
+    padding: 6px 12px;
+    margin: 8px 5px;
+    transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+    width: 70%;
+}
+button{
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.42857;
+    margin-bottom: 0;
+    padding: 6px 12px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    background-color: #fff;
+    border-color: #ccc;
+    color: #333;
+}
+button:focus, button:active:focus{
+    outline: thin dotted;
+    outline-offset: -2px;
+}
+button:hover, button:focus {
+    text-decoration: none;
+    background-color: #e6e6e6;
+    border-color: #adadad;
+    color: #333;
+}
+</style>
+
+{% endblock %}
+{% block js %}
+<script type="text/javascript" src="{% static 'simditor/js/simditor-all.js' %}"></script>
+<script>
+function getCookie(sName){
+  var aCookie=document.cookie.split("; ");
+  for(var i=0;i<aCookie.length;i++){
+    var aCrumb=aCookie[i].split("=");if(sName==aCrumb[0])
+    return(aCrumb[1]);
+  }
+  return null;
+}
+$(function(){
+  $(".xm_nav [href='{% url 'topic_index' %}']").parents("li").addClass('a');
+  var c = getCookie('csrftoken');
+  var editor = new Simditor({
+    textarea: $('#id_content'),
+    defaultImage: "{% static 'simditor/images/image.png' %}",
+    toolbar: ['title', 'bold', 'italic', 'underline', 'strikethrough', '|', 'ol', 'ul', 'blockquote', 'code', 'table', '|', 'link', 'image', 'hr', '|', 'indent', 'outdent'],
+    upload:{
+      url: {% url 'upload_img' %},
+      params: {'csrfmiddlewaretoken': c},
+      connectionCount: 3,
+      leaveConfirm: '正在上传文件，如果离开上传会自动取消',
+  },
+
+  });
+});
+</script>
+{% endblock %}
+
+
+{% block content %}
+<div class="mn xm_mn">
+    {% if topic_form.errors %}
+      {% for field in topic_form %}
+        {% if field.errors %}
+          {% for error in field.errors %}
+            {{ field.label }}:{{ error }}
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    {% if post_form.errors %}
+      {% for field in post_form %}
+        {% if field.errors %}
+          {% for error in field.errors %}
+          {#{{ field.label }}:{{ error }}#}
+          回复不能为空
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  <form class="form-horizontal" role="form" method="post">{% csrf_token %}
+    {% for field in topic_form %}
+      {{ field.label }}
+      {{ field }}
+    {% endfor %}
+    {% for field in post_form %}
+      {{ field.label }}
+      {{ field }}
+    {% endfor %}
+    <br>
+    <button type="submit" class="btn btn-primary">提交</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block side %}
+  {% include "side.html" %}
+{% endblock %}
+
+

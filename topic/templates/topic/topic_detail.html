@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+{% load get_avatar %}
+
+{% block title %}{{ topic.subject }}{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/style_viewthread.css' %}" /> 
+
+<link rel="stylesheet" type="text/css" href="{% static 'simditor/css/font-awesome.css' %}" /> 
+<link rel="stylesheet" type="text/css" href="{% static 'simditor/css/simditor.css' %}" /> 
+
+<style type="text/css">
+.plc img{max-width: 500px;}
+button{
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.42857;
+    margin-bottom: 0;
+    padding: 6px 12px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    background-color: #fff;
+    border-color: #ccc;
+    color: #333;
+}
+button:focus, button:active:focus{
+    outline: thin dotted;
+    outline-offset: -2px;
+}
+button:hover, button:focus {
+    text-decoration: none;
+    background-color: #e6e6e6;
+    border-color: #adadad;
+    color: #333;
+}
+</style>
+
+
+{% endblock %}
+{% block js %}
+<script type="text/javascript" src="{% static 'simditor/js/simditor-all.js' %}"></script>
+<script>
+function getCookie(sName){
+  var aCookie=document.cookie.split("; ");
+  for(var i=0;i<aCookie.length;i++){
+    var aCrumb=aCookie[i].split("=");if(sName==aCrumb[0])
+    return(aCrumb[1]);
+  }
+  return null;
+}
+$(function(){ 
+  $(".xm_nav [href='{% url 'topic_index' %}']").parents("li").addClass('a');
+  var c = getCookie('csrftoken');
+  var editor = new Simditor({
+    textarea: $('#id_content'),
+    defaultImage: "{% static 'simditor/images/image.png' %}",
+    toolbar: ['title', 'bold', 'italic', 'underline', 'strikethrough', '|', 'ol', 'ul', 'blockquote', 'code', 'table', '|', 'link', 'image', 'hr', '|', 'indent', 'outdent'],
+    upload:{
+      url: {% url 'upload_img' %},
+      params: {'csrfmiddlewaretoken': c},
+      connectionCount: 3,
+      leaveConfirm: '正在上传文件，如果离开上传会自动取消',
+    },
+  });
+
+  $(".post_spam").click(function(){
+    var url = $(this).attr('href');
+    s = $(this).children("span");
+    $.post(url,{'csrfmiddlewaretoken': c},function(data){
+      if(data.status){
+        s.text(parseInt(s.text()) + 1);
+      }else{
+        alert(data.msg);
+      }
+    });
+    return false;
+  });
+  $(".post_like").click(function(){
+    var url = $(this).attr("href");
+    s = $(this).children("span");
+    $.post(url,{'csrfmiddlewaretoken': c},function(data){
+      if(data.status){
+        s.text(parseInt(s.text()) + 1);
+      }else{
+        alert(data.msg);
+      }
+    });
+    return false;
+  });
+   $(".topic_homepage").click(function(){
+    var url = $(this).attr("href");
+    $.post(url,{'csrfmiddlewaretoken': c},function(data){
+      alert(data.msg);
+    });
+    return false;
+  });
+ 
+});
+</script>
+{% endblock %}
+
+{% block nav %}
+     <em>›</em>
+     <a href="{{ topic.get_absolute_url }}">{{ topic.subject }}</a>
+{% endblock %}
+
+
+{% block content %}
+<div class="xm_tp">
+  <div class="xm_p_tp">
+    <div class="y">
+      <div class="xm_tp_action">
+        <span class="y replies">{{ topic.reply_count }}</span>
+        <span class="y views">{{ topic.view_count }}</span>
+      </div>
+    </div>
+    <a href="#" title="" class="xm_avt"><img src="{% get_avatar topic.user.email 48 %}"></a>
+    <h1>
+        <a href="#" id="thread_subject">{{ topic.subject }}</a>
+    </h1>
+    <div class="xm_tp_action">
+      <span>
+      {# <a href="#" title="">公司</a> #}
+      <a target="_blank"><img src="{% static 'image/uvip_auth.png' %}" class="vm" alt="{{ topic.user.get_level_display }}" title="等级"></a>&nbsp;
+      </span>
+      <span>于 <span title="{{ topic.created_on|date:"Y-m-d H:i:s" }}"></span>{{ topic.created_on|naturaltime }}</span>
+      <span>发表在<a href="{{ topic.forum.get_absolute_url }}">[{{ topic.forum.name }}]</a></span>
+      {% if topic.topic_type %}
+      <span><em>[{{ topic.topic_type.name }}]</em></span>
+      {% endif %}
+      {% if topic.essence %}
+      <span><em style="color: #ed5669;">置顶</em></span>
+      {% endif %}
+      <span class="xg1">
+        {# <a href="#" title="">[复制链接]</a> #}
+        {# <a href="#" rel="nofollow">[只看楼主]</a> #}
+        {# <a href="#" title="打印" target="_blank">[打印]</a> #}
+        <a href="{{ topic.get_forum_pre_topic.get_absolute_url }}" title="上一主题">[上一主题]</a>
+        <a href="{{ topic.get_forum_next_topic.get_absolute_url }}" title="下一主题">[下一主题]</a>
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="mn xm_mn">
+  <div id="postlist" class="pl">
+    {% for post in topic.post_set.all %}
+    <div id="post_{{ post.pk }}">
+      {# 一楼才有 #}
+      {% if forloop.counter0 == 0 %}
+      <div class="pl_t">
+        <span class="act_btn y">
+        <a href="#" id="k_favorite" title="收藏"><img class="vm" src="{% static 'image/pl_t_fav.gif' %}" alt="收藏"></a>
+        </span>
+        {% comment %}
+        <span class="act_btn y" id="fj">
+          <input size="2" title="跳转到指定楼层" type="text">
+            <a href="javascript:;" id="fj_btn" title="跳转到指定楼层">
+              <img src="{% static 'image/pl_t_fj.gif' %}" alt="跳转到指定楼层" class="vm">
+            </a>
+        </span>
+        {% endcomment %}
+        <div id="recommendItemTop" class="recommendItemTop withStamp"></div>
+      </div>
+      {% endif %}
+      {# 一楼才有 end #}
+
+      <table id="" class="plhin post_lz" cellpadding="0" cellspacing="0">
+        <tbody>
+        <tr>
+          {# 其他楼才有 #}
+          {% if forloop.counter0 != 0 %}
+          <td class="pls" rowspan="2">
+            <div id="favatar282352092" class="pls favatar">
+             {% comment %}
+             <div class="p_pop blk bui xm_card card_gender_" style="display: none; ">
+              <div class="card_inner">
+               <div class="m z">
+                <div class="avatar" id="userinfo282352092_ma"></div>
+               </div>
+               <div class="c_info">
+                <div class="c_info_top">
+                 <strong>
+                  <a href="#" target="_blank" class="xi2">{{ post.user.username }}</a>
+                  <a href="#" target="_blank"><img src="{% static 'image/uvip_auth.png' %}" class="vm" alt="认证用户" title="认证用户"></a>
+                 </strong>
+                 <a href="#" target="_blank">潜力级控(Lv1)</a>
+                </div>
+                <ul>
+                 <li><em>积分</em><a href="#" target="_blank" class="xi2">67</a></li>
+                 <li><em>精华</em></li>
+                 <li><em></em></li>
+                 <li><em></em></li>
+                </ul>
+                <p>最后登录 {{ post.user.last_login|date:"Y-m-d" }}</p>
+                <div class="c_icon">
+                </div>
+               </div>
+               <div class="c_action">
+                <a class="y" href="#">加为好友</a>		
+                <a class="y" href="#" title="发送消息">发送消息</a>
+                <a class="z" href="#" target="_blank">访问家园</a>
+               </div>
+               <div class="i y" style="display: none">
+                <div class="imicn">
+                 <a href="#" target="_blank" title="查看详细资料"><img src="{% static 'image/user_online.gif' %}" alt="查看详细资料"></a>
+                </div>
+                <div id="avatarfeed"><span id="threadsortswait"></span></div>
+               </div>
+              </div>
+             </div>
+             {% endcomment %}
+             <div class="avatar">
+                <a href="#" class="avtm" target="_blank"><img src="{% get_avatar post.user.email 48 %}"></a>
+                {#<p>最后登录 {{ post.user.last_login|date:"Y-m-d" }}</p>#}
+                <p>{{ post.user.get_level_display }}</p>
+             </div>
+            </div>
+          </td>
+          {% endif %}
+          {# 其他楼才有 end #}
+
+          {# 内容 #}
+          <td class="plc">
+            {# 其他楼才有 #}
+            {% if forloop.counter0 != 0 %}
+            <div class="pi">
+              <strong class="y">
+                  <a style="background: #ffce55" href="#">
+                      {% if post.floor == 2 %}
+                      沙发
+                      {% elif post.floor == 3 %}
+                      板凳
+                      {% elif post.floor == 4 %}
+                      地板
+                      {% else %}
+                        {{ post.floor }}
+                      {% endif %}
+                  </a>
+              </strong>
+              <div class="pti">
+                <div class="pdbt"></div>
+                <div class="authi">
+                  <span class="author"><a href="#" target="_blank">{{ post.user.username }}</a> 
+                  <a href="#" target="_blank"><img src="{% static 'image/uvip_auth.png' %}" class="vm" alt="认证用户" title="认证用户"></a>
+                  </span>
+                  <span class="authortitle">{{ topic.user.get_level_display }}</span>
+                  <em>发表于 <span title="{{ post.created_on|date:"Y-m-d H:i:s" }}">{{ post.created_on|naturaltime }}</span></em>
+                  {% comment %}
+                  <span class="pipe">|</span>
+                  <a href="#" rel="nofollow">只看该作者</a>
+                  {% endcomment %}
+                </div>
+              </div>
+            </div>
+            {% endif %}
+            {# 其他楼才有 end #}
+            <div class="pct">
+              <div class="pcb">
+                <div class="t_fsz xm_post_body">
+                  <table cellpadding="0" cellspacing="0">
+                    <tbody>
+                      <tr>
+                        <td class="t_f" id="#">
+                          {% if post.deleted %}
+                          <div style="background:#f0f0f0;">
+                              内容已被<b>{{ post.deleted_by.username }}</b>于<i>{{ post.deleted_on|date:"Y-m-d H:i:s" }}</i>删除
+                          </div>
+                          {% else %}
+                            {{ post.content|safe }}
+                          {% endif %}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div id="" class="cm"></div>
+                <div id=""></div>
+              </div>
+            </div>
+          </td>
+          {# 内容end #}
+        </tr>
+
+        {% if forloop.counter0 == 0 %}
+        <tr>
+          <td class="plc plm">
+            <div id="p_btn" class="hm cl">
+              <a href="#" id="k_favorite" title="收藏本帖"><img src="{% static 'image/fav.gif' %}" alt="收藏">收藏<span id="favoritenumber">{{ topic.like_count }}</span></a>
+              <a class="sharep" href="#" title="分享推精华"><img src="{% static 'image/oshr.png' %}" alt="分享">分享<span id="sharenumber">0</span></a>
+              <a class="post_like" href="{% url 'post_like' post.pk %}" title="顶一下"><img src="{% static 'image/rec_add.gif' %}" alt="赞">赞<span>{{ topic.like_count }}</span></a>
+            </div>
+          </td>
+        </tr>
+        {% endif %}
+
+        <tr id=""></tr>
+        <tr>
+          {# 其他楼才有 #}
+          {% if forloop.counter0 != 0 %}
+          <td class="pls"> </td>
+          {% endif %}
+          {# 其他楼才有 end #}
+          <td class="plc" style="overflow:visible;">
+            <div class="po hin">
+              <span class="y">
+                <em><a class="post_spam" href="{% url 'post_spam' post.pk %}"> 举报 <span>{{ post.spam_count }}</span></a></em>
+                {% if forloop.counter0 == 0 %}
+                {% if user == topic.user or user.is_staff %}
+                <em><a href="{% url 'topic_update' topic.get_slug %}"> 编辑 </a></em>
+                {% endif %}
+                {% endif %}
+                {% if user.is_staff %}
+                <em><a href="{% url 'post_delete' post.pk %}" onclick="return confirm('确定删除吗?');"> 删除 </a></em>
+                  {% if forloop.counter0 == 0 and not topic.homepage %}
+                    <em><a class="topic_homepage" href="{% url 'topic_homepage' topic.pk %}" onclick="return confirm('确定放到首页吗吗?');"> 首页显示 </a></em>
+                  {% endif %}
+                {% endif %}
+              </span>
+              <div class="pob cl">
+                <em><span class="pipe">|</span><a class="fastre" href="">回复</a>
+                  {% if forloop.counter0 != 0 %}
+                  <a href="{% url 'post_like' post.pk %}" class="post_like">赞 <span>{{ post.like_count }}</span></a>
+                  {% endif %}
+                </em>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+        <tr class="ad">
+          {% if forloop.counter0 != 0 %}
+          <td class="pls"></td>
+          {% endif %}
+          <td class="plc"></td>
+        </tr>
+
+        </tbody>
+      </table>
+
+    </div> {# post end #}
+    {% endfor %}
+
+ 
+
+  </div>
+  <br>
+
+  {% if user.is_authenticated %}
+  <form action="{% url 'post_create' topic.get_slug %}" class="form-horizontal" role="form" method="post">{% csrf_token %}
+    {% for field in post_form %}
+    {{ field.label }}
+      {{ field }}
+      {% for error in field.errors %}
+        {{ error }}
+      {% endfor %}
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">提交</button>
+  </form>
+  {% else %}
+  <div id="f_pst">
+  <div class="tedt mtn pt hm ">
+    您需要登录后才可以回帖
+    <a class="xi2" onclick="" href="{% url 'login' %}">登录</a>
+    |
+    <a class="xi2" href="{% url 'register' %}">注册</a>
+  </div>
+  </div>
+  {% endif %}
+
+
+
+</div>
+{% endblock %}
+
+{% block side %}
+  {% include "side.html" %}
+{% endblock %}

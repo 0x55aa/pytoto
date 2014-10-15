@@ -1,0 +1,128 @@
+{% load static %}
+{% load get_avatar %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" /> 
+    <title>{% block title %}{% endblock %}-{{ site_name }}</title> 
+    <meta name="keywords" content="" /> 
+    <meta name="description" content="" /> 
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style_common.css' %}" /> 
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style_index.css' %}" /> 
+    {% block css %}{% endblock %}
+    <script type="text/javascript" src="{% static 'js/jquery-1.11.1.min.js' %}"></script>
+    {% block js %}{% endblock %}
+  </head>
+ <body id="nv_forum" class="pg_index">
+  <div id="append_parent"></div>
+  <div id="ajaxwaitid"></div> 
+  <div id="toptb" class="cl"> 
+   <div class="wp"> 
+    <div class="z"> 
+     <a href="javascript:;">设为首页</a>
+     <a href="#">收藏本站</a>
+     <a href="#">社区微博</a>
+     <a href="#">论坛版块</a>
+     <a href="#" target="_blank">网站导航</a>
+     <a href="#" target="_blank">总版规</a> 
+    </div> 
+    <div class="y"> 
+     <a id="switchblind" href="javascript:;" title="开启辅助访问" class="switchblind">开启辅助访问</a> 
+     <a href="#" target="_blank">VIP认证</a>
+     <a href="#">每日签到</a>
+     <a href="#" target="_blank">F码通道</a>
+    </div> 
+   </div> 
+  </div> 
+  <div id="hd" class="xm_header"> 
+   <div class="xm_headerInner headerInner"> 
+    <div class="logo" id="logo"> 
+      <a class="logo_img" id="logoImg" href="#" title="论坛"><img src="{% static 'image/logo.png' %}" alt="论坛" border="0" /></a> 
+     <div class="info clearfix " style="float: left;margin-top: 80px;color: #656D78;"> 
+      <div class="ju"> 
+        <a style="color: #656D78;font-size:15px;" id="logoText" href="#" target="_blank">{{ description }}</a> 
+      </div> 
+     </div> 
+     <a href="#" target="_blank" class="packet_toggle"></a> 
+    </div> 
+    <div class="info"> 
+     <div class="xm_um"> 
+      <div id="um"> 
+        {% if user.is_authenticated %}
+        <div class="xm_avt">
+            <a class="xm_ur" href="{% url 'profile' %}"><img src="{% get_avatar user.email 48 %}">{{ user.username }}</a>
+          <i></i>
+          <a target="_blank" href="" class="xm_veri_link">!</a>
+          <a href="{% url 'logout' %}">退出</a>
+        </div>
+        <a alt="消息" class="msg" id="pm_ntc" href="#"></a>
+        {% else %}
+        <p class="login"> <a href="{% url 'login' %}">登录</a> <span class="pipe">|</span> <a href="{% url 'register' %}">注册</a> <span class="pipe">|</span> <a href="{% url 'password_reset' %}">忘记密码</a> </p> 
+        {% endif %}
+      </div> 
+     </div> 
+    </div> 
+    <div id="nv"> 
+     <a href="#" id="qmenu" class="qmenu_xiaomi">快捷导航</a> 
+     <div class="xm_search"> 
+      <div id="scbar" class="fold"> 
+       <form id="scbar_form" method="get" autocomplete="off" action="#" target="_blank"> 
+        <input placeholder="请输入搜索内容" class=" xg1" name="srchtxt" id="scbar_txt" autocomplete="off" x-webkit-speech="" speech="" type="text" /> 
+        <button type="submit" name="searchsubmit" id="scbar_btn" sc="1" class="pn pnc" value="true">搜索</button> 
+       </form> 
+      </div> 
+     </div> 
+     <ul class="xm_nav"> 
+      <li><a href="{% url 'home' %}">首页</a></li> 
+      <li class=""><a href="{% url 'topic_index' %}">论坛</a></li> 
+      <li class=""><a href="{% url 'forum_index' %}">版块</a></li> 
+      <li class=""><a href="#">更多</a></li> 
+     </ul> 
+    </div> 
+   </div>
+  </div> 
+  <!-- hd --> 
+
+
+  <div id="wp" class="wp">
+   <div id="pt" class="bm cl">
+    <div class="z">
+     <a href="{% url 'home' %}">论坛</a>
+     <em>›</em>
+     <a href="{% url 'forum_index' %}">所有版块</a>
+     {% block nav %}{% endblock %}
+    </div>
+    <div class="z"></div>
+   </div>
+   <div class="wp">
+    <div id="diy1" class="area"></div>
+   </div> 
+   <div id="ct" class="wp cl ct2 xm_ct2"> 
+      {% block content %}{% endblock %}
+      {% block side %}{% endblock %}
+   </div>
+  </div>
+
+
+  <div id="ft" class="xm_footer"> 
+   <div class="xm_footerInner"> 
+    <div class="xm_footerInnerInner"> 
+     <a href="{% url 'home' %}" class="logo"><em>toto</em></a>
+     <div class="links"> 
+     <h5>友情链接</h5> 
+      <a href="{% url 'home' %}" target="_blank">toto</a> | 
+      <a href="http://blog.0x55aa.com/" target="_blank">0x55aa</a> | 
+      <a href="https://www.djangoproject.com/" target="_blank">Django</a> | 
+      <a href="http://jquery.com/" target="_blank">Jquery</a> | 
+      <a href="http://simditor.tower.im/" target="_blank">simditor</a> | 
+     </div> 
+    </div> 
+   </div> 
+   <div class="icp">
+     &copy; <a href="http://blog.0x55aa.com/" target="_blank">0x55aa</a>制作
+   </div> 
+  </div> 
+
+ </body>
+</html>

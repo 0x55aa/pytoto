@@ -1,0 +1,14 @@
+# use glob syntax.
+syntax: glob
+
+.svn/
+.git/
+.idea/
+.DS_Store/
+db.sqlite3
+local.py
+*.pyc
+*.pyo
+*.db
+*.zip
+

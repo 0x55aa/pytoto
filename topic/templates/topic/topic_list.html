@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+{% load get_avatar %}
+
+{% block title %}{{ forum.name }} 帖子列表{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/style_forumdisplay.css' %}" /> 
+{% endblock %}
+{% block js %}
+<script>
+function getCookie(sName){
+  var aCookie=document.cookie.split("; ");
+  for(var i=0;i<aCookie.length;i++){
+    var aCrumb=aCookie[i].split("=");if(sName==aCrumb[0])
+    return(aCrumb[1]);
+  }
+  return null;
+}
+$(function(){ 
+  $(".xm_nav [href='{% url 'topic_index' %}']").parents("li").addClass('a');
+  var c = getCookie('csrftoken');
+  $("#a_favorite").click(function(){
+    alert("收藏成功");
+    return false;
+  });
+  $("#rss").click(function(){
+    alert("订阅成功");
+    return false;
+  });
+
+  $(".post_like").click(function(){
+    var url = $(this).attr("href");
+    s = $(this).children("span");
+    $.post(url,{'csrfmiddlewaretoken': c},function(data){
+      if(data.status){
+        s.text(parseInt(s.text()) + 1);
+      }else{
+        alert(data.msg);
+      }
+    });
+    return false;
+  });
+ 
+});
+</script>
+
+{% endblock %}
+
+
+{% block nav %}
+  {% if not is_total %}
+     <em>›</em>
+     <a href="{{ forum.get_absolute_url }}">{{ forum.name }}</a>
+  {% endif %}
+{% endblock %}
+
+
+{% block content %}
+{% if not is_total %}
+<div class="xm_tp">
+  <div class="xm_l_tp">
+    <div class="y"></div>
+    <h1><a href="{{ forum.get_absolute_url }}">{{ forum.name }}</a></h1>
+    <div class="xm_tp_action">
+      <a href="#" id="a_favorite">收藏本版
+        <strong class="xi1" id="number_favorite">
+        (<span id="number_favorite_num">0</span>)
+        </strong>
+      </a>
+      <span class="pipe">|</span>
+      <a href="#" id="rss" target="_blank" title="RSS">订阅</a>
+    </div>
+    <div class="xm_tp_action">
+        今日: <strong>{{ forum.today_post_count }}</strong>
+      <span class="pipe">|</span>
+      主题: <strong>{{ forum.topic_count }}</strong>
+      <span class="pipe">|</span>
+      帖子: <strong>{{ forum.post_count }}</strong>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+<div class="mn xm_mn">
+  <div class="drag">
+    <div id="diy4" class="area"></div>
+  </div>
+  <ul id="thread_types" class="ttp bm cl">
+    <li id="ttp_all" class="xw1 a"><a href="{{ forum.get_absolute_url }}">全部</a></li>
+    <span class="pipe">|</span>
+    {% if is_total %}
+      {% for forum in forum_topic_total %}
+      <li><a href="{{ forum.get_absolute_url }}">{{ forum.name }}<span class="xg1 num">{{ forum.topic_count }}</span></a></li>
+      <span class="pipe">|</span>
+      {% endfor %}
+    {% else %}
+      {% for type in forum.topictype_set.all %}
+      <li><a href="{{ type.get_absolute_url }}">{{ type.name }}<span class="xg1 num">{{ type.get_topic_count }}</span></a></li>
+      <span class="pipe">|</span>
+      {% endfor %}
+      <li><a href="">其他<span class="xg1 num">{{ forum.get_notype_topic_count }}</span></a></li>
+    {% endif %}
+  </ul>
+
+<div id="threadlist" class="tl">
+  <div class="th">
+    <div class="y">
+      <a href="" class="xi2">最新</a>&nbsp;
+      <span class="pipe">|</span>
+      <a href="" class="xi2">热门</a>&nbsp;
+      <span class="pipe">|</span>
+      <a href="" class="xi2">热帖</a>&nbsp;
+      <span class="pipe">|</span>
+      <a href="" class="xi2">精华</a>&nbsp;
+    </div>
+    筛选：
+    <span class="showmenu_outer">
+        <a id="filter_special" href="javascript:;" class="showmenu ">全部主题</a>
+    </span>
+    <span class="showmenu_outer">
+        <a id="filter_time" href="javascript:;" class="showmenu ">全部时间</a>
+    </span>
+    排序：
+    <span class="showmenu_outer">
+        <a id="filter_orderby" href="javascript:;" class="showmenu ">发帖时间</a>
+    </span>
+  </div>
+
+  <div>
+    <div id="forumnew" style="display:none"></div>
+    <table summary="forum_15" id="threadlisttableid" cellpadding="0" cellspacing="0">
+      <tbody id="separatorline" class="emptb">
+        <tr>
+          <td class="icn"></td>
+          <th></th><td class="by"></td><td class="num"></td><td class="by"></td>
+        </tr>
+      </tbody>
+
+      {% for topic in topics %}
+      <tbody id="">
+        <tr>
+          <td class="icn"></td>
+          <th class="common">
+          <div class="avatarbox"><a href="" c="1" class="avatar"><img src="{% get_avatar topic.user.email 48 %}"></a></div>
+          <div class="tl_ct">
+            {#<a href="javascript:void(0);" class="showhide y" title="隐藏置顶帖">隐藏置顶帖</a>#}
+            <a href="#" class="y views">{{ topic.view_count }}</a>
+            <a class="tdpre y" href="javascript:void(0);">预览</a>
+            {% if topic.topic_type %}
+            <a href="{{ topic.get_absolute_url }}" style="font-weight: bold;color: #666;" class="s xst">【{{ topic.topic_type.name }}】</a>
+            {% endif %}
+            <a class="s xst" href="{{ topic.get_absolute_url }}"{% if topic.sticky %} style="font-weight: bold;color: #EE1B2E"{% elif topic.homepage %} style="font-weight: bold;color: #2897C5;"{% endif %}>{{ topic.subject }}</a>
+            {% if topic.hot %}
+            <img src="{% static 'image/002.gif' %}" alt="热帖" align="absmiddle">
+            {% endif %}
+            {#<img src="{% static 'image/rushreply_s.png' %}" alt="抢楼" align="absmiddle">#}
+            {#<span> 【还有 <span></span> 结束  】</span>#}
+            {#<img src="{% static 'image/image_s.gif' %}" alt="attach_img" title="图片附件" align="absmiddle">#}
+            {% if topic.essence %}
+            <img src="{% static 'image/digest_2.gif' %}" alt="digest" title="精华" align="absmiddle">
+            {% endif %}
+            <div class="info">
+              <em class="y replies">{{ topic.reply_count }}</em>
+              <em><a href="#">{{ topic.user.username }}</a><a target="_blank" href="#"><img title="认证用户" alt="认证用户" class="vm" src="{% static 'image/uvip_auth.png' %}"></a></em>
+              <em>于 <span class="xi1"><span title="{{ topic.created_on|date:"Y-m-d H:i:s" }}">{{ topic.created_on|naturaltime }}</span></span> 发表</em>
+              <em>最后回复<a href=""><span title="{{ topic.last_reply_on|date:"Y-m-d H:i:s" }}">{{ topic.last_reply_on|naturaltime }}</span></a></em>
+              <a href="" target="_blank">置顶</a>
+            </div>
+          </div>
+          </th>
+          <td class="by"></td>
+          <td class="num"></td>
+          <td class="by"></td>
+        </tr>
+      </tbody>
+      {% endfor %}
+
+    </table>
+  </div>
+</div>{# threadlist end #}
+
+<div class="pgbtn" id="pgbtn"></div>
+
+{# paginator #}
+<div class="bm bw0 pgs cl">
+  <span class="pgb">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}">上一页</a>
+    {% else %}
+      <a href="#">上一页</a>
+    {% endif %}
+  </span>
+  <span id="fd_page_bottom">
+    <div class="pg">
+      {% for pg in page_obj.paginator.page_range %}
+        {% if page_obj.number == pg %}
+          <strong>{{ pg }}</strong>
+        {% else %}
+          <a href="?page={{ pg }}">{{ pg }}</a>
+        {% endif %}
+      {% endfor %}
+      {#<a class="last" href="?page={{ page_obj.paginator.num_pages }}">... {{ page_obj.paginator.num_pages }}</a>#}
+      {% if page_obj.has_next %}
+        <a class="nxt" href="?page={{ page_obj.next_page_number }}">下一页</a>
+      {% else %}
+        <a class="nxt" href="#">下一页</a>
+      {% endif %}
+    </div>
+  </span>
+
+</div>
+
+
+</div>{# mn xm_mn #}
+{% endblock %}
+
+{% block side %}
+  {% include "side.html" %}
+{% endblock %}
